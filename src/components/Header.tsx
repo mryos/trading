@@ -64,7 +64,7 @@ export default function Header({ onSearch, theme, toggleTheme }: HeaderProps) {
     return (
         <div className="flex justify-between items-center w-full p-4 border-b bg-card h-16">
             <div className="flex items-center gap-4">
-                <h1 className="font-bold text-xl text-foreground">AI Vest</h1>
+                <h1 className="font-bold text-xl text-foreground">Try AI Vest</h1>
                 <div className="flex items-center gap-2 text-muted text-sm ml-8">
                     <span className="text-secondary font-medium" style={{ color: '#2962ff' }}>BTC/USD</span>
                     <span>$43,241.50</span>
