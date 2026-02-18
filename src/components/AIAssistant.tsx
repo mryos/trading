@@ -27,7 +27,7 @@ export default function AIAssistant() {
         setMessages([
             {
                 id: 1,
-                text: "Hello! I am AI Vest. How can I help you analyze the market today?",
+                text: "Hai! Saya AI Vest! Ada yang bisa kami bantu?",
                 sender: 'bot',
                 timestamp: new Date()
             }
@@ -160,7 +160,7 @@ export default function AIAssistant() {
                     </button>
                 </div>
                 <p className="text-[10px] text-center text-muted mt-2 opacity-60">
-                    AI generated content may be inaccurate.
+                    Perhitungan AI bisa saja tidak cocok 100%.
                 </p>
             </div>
         </div>
