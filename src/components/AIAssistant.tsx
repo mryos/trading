@@ -210,9 +210,20 @@ export default function AIAssistant() {
                         Sisa pesan gratis hari ini: <span className="font-bold text-accent">{MESSAGE_LIMIT - messageCount}</span>
                     </p>
                 ) : (
-                    <p className="text-[9px] text-center text-accent mt-2 font-bold uppercase tracking-widest">
-                        Gabung PRO untuk akses tak terbatas
-                    </p>
+                    <div className="flex flex-col items-center gap-2 mt-2">
+                        <p className="text-[9px] text-center text-accent font-bold uppercase tracking-widest">
+                            Gabung PRO untuk akses tak terbatas
+                        </p>
+                        <button
+                            onClick={() => {
+                                setMessageCount(0);
+                                localStorage.setItem('ai_message_count', '0');
+                            }}
+                            className="text-[9px] text-muted hover:text-foreground underline cursor-pointer bg-transparent border-none"
+                        >
+                            Reset Limit (Testing Only)
+                        </button>
+                    </div>
                 )}
             </div>
         </div>
