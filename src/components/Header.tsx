@@ -66,9 +66,8 @@ export default function Header({ onSearch, theme, toggleTheme }: HeaderProps) {
             <div className="flex items-center gap-4">
                 <h1 className="font-bold text-xl text-foreground">Try AI Vest</h1>
                 <div className="flex items-center gap-2 text-muted text-sm ml-8">
-                    <span className="text-secondary font-medium" style={{ color: '#2962ff' }}>BTC/USD</span>
-                    <span>$43,241.50</span>
-                    <span className="text-success">+2.4%</span>
+                    <span className="text-secondary font-medium" style={{ color: '#2962ff' }}>IHSG</span>
+                    <span>IDX Composite</span>
                 </div>
             </div>
 
@@ -77,7 +76,7 @@ export default function Header({ onSearch, theme, toggleTheme }: HeaderProps) {
                     <Search className="w-5 h-5 text-muted absolute left-3 center-y" />
                     <input
                         type="text"
-                        placeholder="Search assets..."
+                        placeholder="Cari saham IDX... (cth: BBCA)"
                         value={searchValue}
                         onChange={(e) => setSearchValue(e.target.value)}
                         onKeyDown={handleKeyDown}
