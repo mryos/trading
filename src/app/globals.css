@@ -440,6 +440,166 @@ input {
   color: #ffffff;
 }
 
+/* Utility Classes */
+.opacity-0 {
+  opacity: 0;
+}
+
+.opacity-100 {
+  opacity: 1;
+}
+
+.transition-opacity {
+  transition: opacity 0.2s ease-in-out;
+}
+
+.pointer-events-none {
+  pointer-events: none;
+}
+
+.whitespace-nowrap {
+  white-space: nowrap;
+}
+
+.z-50 {
+  z-index: 50;
+}
+
+.z-100 {
+  z-index: 100;
+}
+
+/* Group hover logic for tooltips */
+.group:hover .group-hover\:opacity-100 {
+  opacity: 1;
+}
+
+/* Visibility Classes */
+.hidden {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .md\:flex {
+    display: flex;
+  }
+}
+
+@media (min-width: 1024px) {
+  .lg\:flex {
+    display: flex;
+  }
+}
+
+/* Scaling */
+.hover\:scale-105:hover {
+  transform: scale(1.05);
+}
+
+.transition-transform {
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Glass effect refinements */
+.glass {
+  background: var(--surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Shadow Utilities */
+.shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.shadow-accent\/20 {
+  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.2);
+}
+
+.shadow-accent\/30 {
+  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+}
+
+/* Scaling */
+.scale-105 {
+  transform: scale(1.05);
+}
+
+.hover\:scale-105:hover {
+  transform: scale(1.05);
+}
+
+/* Group Focus & Within */
+.group:focus-within .group-focus-within\:text-accent {
+  color: var(--accent);
+}
+
+/* Animations (Simple) */
+.animate-in {
+  animation: fade-in 0.2s ease-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Transition Utilities */
+.transition-all {
+  transition: all 0.2s ease-in-out;
+}
+
+.duration-200 {
+  transition-duration: 200ms;
+}
+
+/* Focus Utilities */
+.focus\:outline-none:focus {
+  outline: none;
+}
+
+.focus\:ring-4:focus {
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+/* Background Opacities */
+.bg-accent\/15 {
+  background-color: rgba(59, 130, 246, 0.15);
+}
+
+.bg-accent\/10 {
+  background-color: rgba(59, 130, 246, 0.10);
+}
+
+.bg-muted-10\/50 {
+  background-color: rgba(148, 163, 184, 0.05);
+}
+
+.bg-surface {
+  background-color: var(--surface);
+}
+
+.bg-card {
+  background-color: var(--card);
+}
+
+/* Specific Layout Fixes */
+.shrink-0 {
+  flex-shrink: 0;
+}
+
+.z-40 {
+  z-index: 40;
+}
+
 /* Specific Components */
 .sidebar-btn {
   display: flex;
