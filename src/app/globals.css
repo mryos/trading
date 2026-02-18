@@ -1,26 +1,30 @@
 :root {
-  /* Default Dark Theme */
-  --background: #0d1117;
-  --foreground: #e6e6e6;
-  --accent: #2962ff;
-  --accent-hover: #1e4bd8;
-  --border: #30363d;
-  --card: #161b22;
-  --text-muted: #8b949e;
-  --success: #00c853;
-  --danger: #ff1744;
+  /* Premium Dark Theme */
+  --background: #0b0e14;
+  --foreground: #f0f2f5;
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --border: #1e293b;
+  --card: #141b26;
+  --surface: rgba(30, 41, 59, 0.5);
+  --text-muted: #94a3b8;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
 }
 
 [data-theme='light'] {
-  --background: #f0f2f5;
-  --foreground: #1e2329;
-  --accent: #2962ff;
-  --accent-hover: #1e4bd8;
-  --border: #e0e3eb;
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --border: #e2e8f0;
   --card: #ffffff;
-  --text-muted: #5e6673;
-  --success: #00c853;
-  --danger: #ff1744;
+  --surface: rgba(241, 245, 249, 0.8);
+  --text-muted: #64748b;
+  --success: #059669;
+  --danger: #dc2626;
+  --warning: #d97706;
 }
 
 * {
@@ -53,8 +57,8 @@ input {
 
 /* Scrollbar styling */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -63,11 +67,29 @@ input {
 
 ::-webkit-scrollbar-thumb {
   background: var(--border);
-  border-radius: 4px;
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
+}
+
+.glass {
+  background: var(--surface);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: var(--border);
 }
 
 /* Layout Utilities */

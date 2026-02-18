@@ -38,12 +38,13 @@ export default function AIAssistant() {
         scrollToBottom();
     }, [messages, isTyping]);
 
-    const handleSend = () => {
-        if (!input.trim()) return;
+    const handleSend = async () => {
+        if (!input.trim() || isTyping) return;
 
+        const userText = input.trim();
         const userMessage: Message = {
-            id: messages.length + 1,
-            text: input,
+            id: Date.now(),
+            text: userText,
             sender: 'user',
             timestamp: new Date()
         };
@@ -52,27 +53,46 @@ export default function AIAssistant() {
         setInput('');
         setIsTyping(true);
 
-        setTimeout(() => {
+        try {
+            // Map history for the API
+            const history = messages
+                .filter(m => m.id !== 1) // skip welcome message if desired, or keep it
+                .map(m => ({
+                    role: m.sender === 'user' ? 'user' : 'assistant',
+                    content: m.text
+                }));
+
+            history.push({ role: 'user', content: userText });
+
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ messages: history }),
+            });
+
+            if (!response.ok) throw new Error('Failed to fetch response');
+
+            const data = await response.json();
+
             const botResponse: Message = {
-                id: messages.length + 2,
-                text: generateResponse(input),
+                id: Date.now() + 1,
+                text: data.content,
                 sender: 'bot',
                 timestamp: new Date()
             };
             setMessages(prev => [...prev, botResponse]);
+        } catch (error) {
+            console.error('Chat Error:', error);
+            const errorMsg: Message = {
+                id: Date.now() + 1,
+                text: "Maaf, saya sedang mengalami kendala teknis. Silakan coba lagi nanti.",
+                sender: 'bot',
+                timestamp: new Date()
+            };
+            setMessages(prev => [...prev, errorMsg]);
+        } finally {
             setIsTyping(false);
-        }, 1000);
-    };
-
-    const generateResponse = (query: string): string => {
-        const q = query.toLowerCase();
-        if (q.includes('buy') || q.includes('recommend')) {
-            return "Based on momentum indicators, NVDA is currently in a strong uptrend. Support is established at $480.";
         }
-        if (q.includes('btc')) {
-            return "Bitcoin is testing the $44,000 resistance level. Volume is steady.";
-        }
-        return `I am analyzing the market data for "${query}". Please check back in a moment for the full report.`;
     };
 
     const handleKeyPress = (e: React.KeyboardEvent) => {

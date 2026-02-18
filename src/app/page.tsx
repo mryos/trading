@@ -29,28 +29,34 @@ export default function Home() {
   };
 
   return (
-    <div className="flex h-screen w-full bg-background text-foreground overflow-hidden">
+    <div className="flex h-screen w-full bg-background text-foreground overflow-hidden font-sans">
       <Sidebar />
       <div className="flex flex-col flex-1 h-full overflow-hidden">
         {/* Ticker Tape */}
-        <TopStocks theme={theme} />
+        <div className="shrink-0 z-50 shadow-sm">
+          <TopStocks theme={theme} />
+        </div>
+
         {/* Header */}
         <Header onSearch={handleSearch} theme={theme} toggleTheme={toggleTheme} />
-        <main className="flex flex-1 w-full bg-card overflow-hidden">
+
+        <main className="flex flex-1 w-full bg-background overflow-hidden p-2 gap-2">
           {/* Main Content Area */}
-          <div className="flex flex-col h-full border-r overflow-hidden" style={{ width: "75%" }}>
-            {/* Chart */}
-            <div className="w-full border-b" style={{ height: "55%" }}>
+          <div className="flex flex-col h-full overflow-hidden" style={{ width: "75%" }}>
+            {/* Chart Container */}
+            <div className="w-full bg-card rounded-2xl border overflow-hidden shadow-sm" style={{ height: "60%" }}>
               <TradingViewWidget symbol={symbol} theme={theme} />
             </div>
-            {/* Stock Detail Widgets */}
-            <div className="flex-1 w-full overflow-hidden">
+            {/* Bottom Widgets Gap */}
+            <div className="h-2"></div>
+            {/* Stock Detail Widget */}
+            <div className="flex-1 w-full bg-card rounded-2xl border overflow-hidden shadow-sm">
               <StockDetail key={symbol} symbol={symbol} theme={theme} />
             </div>
           </div>
 
           {/* AI Assistant Area */}
-          <div className="h-full bg-card" style={{ width: "25%", minWidth: "300px" }}>
+          <div className="h-full bg-card rounded-2xl border overflow-hidden shadow-sm" style={{ width: "25%", minWidth: "320px" }}>
             <AIAssistant />
           </div>
         </main>

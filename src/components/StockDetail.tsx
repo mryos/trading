@@ -1,7 +1,8 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
+import { LayoutDashboard, Info } from 'lucide-react';
 
 const SymbolInfo = dynamic(
     () => import("react-ts-tradingview-widgets").then((w) => w.SymbolInfo),
@@ -18,30 +19,25 @@ const FundamentalData = dynamic(
     { ssr: false }
 );
 
-const TechnicalAnalysis = dynamic(
-    () => import("react-ts-tradingview-widgets").then((w) => w.TechnicalAnalysis),
-    { ssr: false }
-);
-
-const Timeline = dynamic(
-    () => import("react-ts-tradingview-widgets").then((w) => w.Timeline),
-    { ssr: false }
-);
-
 interface StockDetailProps {
     symbol: string;
     theme: "light" | "dark";
 }
 
+type TabType = 'profile' | 'financial';
+
 export default function StockDetail({ symbol, theme }: StockDetailProps) {
-    // Using key={symbol} on each widget container forces React to
-    // unmount and remount the widget when the symbol changes.
-    // This is necessary because TradingView iframe widgets don't
-    // respond to prop changes — they must be recreated.
+    const [activeTab, setActiveTab] = useState<TabType>('profile');
+
+    const tabs = [
+        { id: 'profile' as TabType, label: 'Company Profile', icon: Info },
+        { id: 'financial' as TabType, label: 'Financial Data', icon: LayoutDashboard },
+    ];
+
     return (
-        <div className="w-full h-full overflow-y-auto custom-scrollbar bg-background">
-            {/* Symbol Info Bar */}
-            <div className="w-full border-b" style={{ height: "80px" }} key={`info-${symbol}`}>
+        <div className="w-full h-full flex flex-col bg-background overflow-hidden">
+            {/* Header: Symbol Info */}
+            <div className="w-full border-b shrink-0" style={{ height: "80px" }} key={`info-${symbol}`}>
                 <SymbolInfo
                     symbol={symbol}
                     colorTheme={theme}
@@ -50,51 +46,50 @@ export default function StockDetail({ symbol, theme }: StockDetailProps) {
                 />
             </div>
 
-            {/* Main Content Grid */}
-            <div className="grid grid-cols-3 gap-0 w-full" style={{ minHeight: "calc(100% - 80px)" }}>
-                {/* Left Column: Company Profile + Fundamental Data */}
-                <div className="col-span-1 border-r flex flex-col">
-                    <div className="border-b" style={{ height: "350px" }} key={`profile-${symbol}`}>
-                        <CompanyProfile
-                            symbol={symbol}
-                            colorTheme={theme}
-                            locale="en"
-                            height="100%"
-                            width="100%"
-                        />
-                    </div>
-                    <div className="flex-1" style={{ minHeight: "350px" }} key={`fundamental-${symbol}`}>
-                        <FundamentalData
-                            symbol={symbol}
-                            colorTheme={theme}
-                            locale="en"
-                            height="100%"
-                            width="100%"
-                        />
-                    </div>
-                </div>
+            {/* Navigation Tabs */}
+            <div className="flex items-center px-4 border-b bg-card gap-1 shrink-0">
+                {tabs.map((tab) => (
+                    <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all relative ${activeTab === tab.id
+                            ? 'text-accent border-b-2 border-accent'
+                            : 'text-muted hover:text-foreground'
+                            }`}
+                        style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
+                    >
+                        <tab.icon className="w-4 h-4" />
+                        {tab.label}
+                    </button>
+                ))}
+            </div>
 
-                {/* Center Column: Technical Analysis */}
-                <div className="col-span-1 border-r" style={{ minHeight: "700px" }} key={`ta-${symbol}`}>
-                    <TechnicalAnalysis
-                        symbol={symbol}
-                        colorTheme={theme}
-                        locale="en"
-                        height="100%"
-                        width="100%"
-                    />
-                </div>
+            {/* Content Area */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-0">
+                <div className="h-full w-full">
+                    {activeTab === 'profile' && (
+                        <div className="h-full" key={`profile-${symbol}`}>
+                            <CompanyProfile
+                                symbol={symbol}
+                                colorTheme={theme}
+                                locale="en"
+                                height="100%"
+                                width="100%"
+                            />
+                        </div>
+                    )}
 
-                {/* Right Column: Top Stories / News */}
-                <div className="col-span-1" style={{ minHeight: "700px" }} key={`news-${symbol}`}>
-                    <Timeline
-                        colorTheme={theme}
-                        feedMode="symbol"
-                        symbol={symbol}
-                        height="100%"
-                        width="100%"
-                        locale="en"
-                    />
+                    {activeTab === 'financial' && (
+                        <div className="h-full" key={`financial-${symbol}`}>
+                            <FundamentalData
+                                symbol={symbol}
+                                colorTheme={theme}
+                                locale="en"
+                                height="100%"
+                                width="100%"
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
