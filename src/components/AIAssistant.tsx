@@ -122,9 +122,9 @@ export default function AIAssistant() {
     };
 
     return (
-        <div className="flex flex-col h-full bg-card font-sans relative">
+        <div className="flex flex-col h-full bg-card font-sans overflow-hidden">
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b bg-card/80 backdrop-blur-md z-10 sticky top-0">
+            <div className="flex items-center justify-between px-4 py-3 border-b bg-card z-10 shrink-0">
                 <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center">
                         <Bot className="w-5 h-5 text-white" />
@@ -145,44 +145,42 @@ export default function AIAssistant() {
             </div>
 
             {/* Messages List */}
-            <div className="flex-1 min-h-0 relative">
-                <div className="absolute inset-0 overflow-y-auto p-4 space-y-4 custom-scrollbar">
-                    {messages.map((msg) => (
-                        <div
-                            key={msg.id}
-                            className={`flex w-full ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                        >
-                            <div className={`max-w-[85%] flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
-                                <div
-                                    className={`px-4 py-2.5 text-[13px] rounded-2xl shadow-sm break-words whitespace-pre-wrap ${msg.sender === 'user'
-                                        ? 'bg-accent text-white rounded-br-none'
-                                        : 'bg-muted-10 text-foreground border rounded-bl-none'
-                                        }`}
-                                >
-                                    {msg.text}
-                                </div>
-                                <span className="text-[9px] text-muted mt-1 px-1 opacity-60">
-                                    {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                </span>
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-background/30">
+                {messages.map((msg) => (
+                    <div
+                        key={msg.id}
+                        className={`flex w-full ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                    >
+                        <div className={`max-w-[85%] flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
+                            <div
+                                className={`px-4 py-2.5 text-[13px] rounded-2xl shadow-sm break-words whitespace-pre-wrap ${msg.sender === 'user'
+                                    ? 'bg-accent text-white rounded-br-none'
+                                    : 'bg-card text-foreground border border-border/50 rounded-bl-none'
+                                    }`}
+                            >
+                                {msg.text}
                             </div>
+                            <span className="text-[9px] text-muted mt-1 px-1 opacity-60">
+                                {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
                         </div>
-                    ))}
-                    {isTyping && (
-                        <div className="flex justify-start w-full">
-                            <div className="bg-muted-10 border px-4 py-3 rounded-2xl rounded-bl-none shadow-sm flex items-center gap-1">
-                                <span className="w-1.5 h-1.5 bg-muted rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                                <span className="w-1.5 h-1.5 bg-muted rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                                <span className="w-1.5 h-1.5 bg-muted rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
-                            </div>
+                    </div>
+                ))}
+                {isTyping && (
+                    <div className="flex justify-start w-full">
+                        <div className="bg-card border border-border/50 px-4 py-3 rounded-2xl rounded-bl-none shadow-sm flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 bg-muted rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                            <span className="w-1.5 h-1.5 bg-muted rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                            <span className="w-1.5 h-1.5 bg-muted rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
                         </div>
-                    )}
-                    <div ref={messagesEndRef} />
-                </div>
+                    </div>
+                )}
+                <div ref={messagesEndRef} />
             </div>
 
             {/* Input Area */}
-            <div className="p-4 bg-card border-t border-border/50">
-                <div className={`flex items-center gap-2 bg-background border rounded-full px-4 py-2 focus-within:border-accent/50 transition-all ${messageCount >= MESSAGE_LIMIT ? 'opacity-50 pointer-events-none' : ''}`}>
+            <div className="p-4 bg-card border-t border-border/50 shrink-0">
+                <div className={`flex items-center gap-2 bg-background border border-border/80 rounded-full px-4 py-2 focus-within:border-accent transition-all ${messageCount >= MESSAGE_LIMIT ? 'opacity-50 pointer-events-none' : ''}`}>
                     <input
                         type="text"
                         value={input}
@@ -210,7 +208,7 @@ export default function AIAssistant() {
                         Sisa pesan gratis hari ini: <span className="font-bold text-accent">{MESSAGE_LIMIT - messageCount}</span>
                     </p>
                 ) : (
-                    <div className="flex flex-col items-center gap-2 mt-2">
+                    <div className="flex flex-col items-center gap-1.5 mt-2">
                         <p className="text-[9px] text-center text-accent font-bold uppercase tracking-widest">
                             Gabung PRO untuk akses tak terbatas
                         </p>
