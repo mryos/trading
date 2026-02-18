@@ -145,37 +145,39 @@ export default function AIAssistant() {
             </div>
 
             {/* Messages List */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
-                {messages.map((msg) => (
-                    <div
-                        key={msg.id}
-                        className={`flex w-full ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                    >
-                        <div className={`max-w-[85%] flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
-                            <div
-                                className={`px-4 py-2.5 text-[13px] rounded-2xl shadow-sm break-words whitespace-pre-wrap ${msg.sender === 'user'
-                                    ? 'bg-accent text-white rounded-br-none'
-                                    : 'bg-muted-10 text-foreground border rounded-bl-none'
-                                    }`}
-                            >
-                                {msg.text}
+            <div className="flex-1 min-h-0 relative">
+                <div className="absolute inset-0 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+                    {messages.map((msg) => (
+                        <div
+                            key={msg.id}
+                            className={`flex w-full ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                        >
+                            <div className={`max-w-[85%] flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
+                                <div
+                                    className={`px-4 py-2.5 text-[13px] rounded-2xl shadow-sm break-words whitespace-pre-wrap ${msg.sender === 'user'
+                                        ? 'bg-accent text-white rounded-br-none'
+                                        : 'bg-muted-10 text-foreground border rounded-bl-none'
+                                        }`}
+                                >
+                                    {msg.text}
+                                </div>
+                                <span className="text-[9px] text-muted mt-1 px-1 opacity-60">
+                                    {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
                             </div>
-                            <span className="text-[9px] text-muted mt-1 px-1 opacity-60">
-                                {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </span>
                         </div>
-                    </div>
-                ))}
-                {isTyping && (
-                    <div className="flex justify-start w-full">
-                        <div className="bg-muted-10 border px-4 py-3 rounded-2xl rounded-bl-none shadow-sm flex items-center gap-1">
-                            <span className="w-1.5 h-1.5 bg-muted rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                            <span className="w-1.5 h-1.5 bg-muted rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                            <span className="w-1.5 h-1.5 bg-muted rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                    ))}
+                    {isTyping && (
+                        <div className="flex justify-start w-full">
+                            <div className="bg-muted-10 border px-4 py-3 rounded-2xl rounded-bl-none shadow-sm flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 bg-muted rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                                <span className="w-1.5 h-1.5 bg-muted rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                                <span className="w-1.5 h-1.5 bg-muted rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                            </div>
                         </div>
-                    </div>
-                )}
-                <div ref={messagesEndRef} />
+                    )}
+                    <div ref={messagesEndRef} />
+                </div>
             </div>
 
             {/* Input Area */}
