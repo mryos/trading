@@ -81,15 +81,16 @@ input {
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: transparent;
+  background: var(--border);
+  border-radius: 10px;
 }
 
-.custom-scrollbar:hover::-webkit-scrollbar-thumb {
-  background: var(--border);
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }
 
 /* Layout Utilities */

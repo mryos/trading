@@ -145,7 +145,7 @@ export default function AIAssistant() {
             </div>
 
             {/* Messages List */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-background/30">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-background/30" style={{ minHeight: 0 }}>
                 {messages.map((msg) => (
                     <div
                         key={msg.id}
