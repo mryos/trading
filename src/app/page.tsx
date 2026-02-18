@@ -29,7 +29,7 @@ export default function Home() {
               <TradingViewWidget symbol={symbol} theme={theme} />
             </div>
             <div className="flex-1 w-full overflow-hidden">
-              <TopStocks />
+              <TopStocks symbol={symbol} />
             </div>
           </div>
 
