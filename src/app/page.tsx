@@ -13,11 +13,32 @@ export default function Home() {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
 
   const handleSearch = (query: string) => {
-    // Auto-prefix IDX: if user types just the stock code (e.g. "BBCA" -> "IDX:BBCA")
     const trimmed = query.trim().toUpperCase();
+
     if (trimmed.includes(':')) {
       setSymbol(trimmed);
-    } else {
+      return;
+    }
+
+    const cryptoCommon = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE', 'ADA', 'TRX'];
+    const usStocksCommon = ['AAPL', 'TSLA', 'NVDA', 'MSFT', 'AMZN', 'GOOG', 'META'];
+
+    if (cryptoCommon.includes(trimmed)) {
+      setSymbol(`BINANCE:${trimmed}USDT`);
+      return;
+    }
+
+    if (usStocksCommon.includes(trimmed)) {
+      setSymbol(`NASDAQ:${trimmed}`);
+      return;
+    }
+
+    if (/^[A-Z]{4}$/.test(trimmed)) {
+      setSymbol(`IDX:${trimmed}`);
+      return;
+    }
+
+    if (trimmed.length > 0) {
       setSymbol(`IDX:${trimmed}`);
     }
   };
@@ -29,34 +50,79 @@ export default function Home() {
   };
 
   return (
-    <div className="flex h-screen w-full bg-background text-foreground overflow-hidden font-sans">
+    <div style={{ display: 'flex', height: '100vh', width: '100%', backgroundColor: 'var(--background)', color: 'var(--foreground)', overflow: 'hidden', fontFamily: 'Inter, sans-serif' }}>
       <Sidebar />
-      <div className="flex flex-col flex-1 h-full overflow-hidden">
+
+      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, height: '100%', overflow: 'hidden' }}>
         {/* Ticker Tape */}
-        <div className="shrink-0 z-50 shadow-sm">
+        <div style={{ flexShrink: 0, zIndex: 50 }}>
           <TopStocks theme={theme} />
         </div>
 
         {/* Header */}
         <Header onSearch={handleSearch} theme={theme} toggleTheme={toggleTheme} />
 
-        <main className="flex flex-1 w-full bg-background overflow-hidden p-2 gap-2">
-          {/* Main Content Area */}
-          <div className="flex flex-col h-full overflow-hidden" style={{ width: "75%" }}>
-            {/* Chart Container */}
-            <div className="w-full bg-card rounded-2xl border overflow-hidden shadow-sm" style={{ height: "60%" }}>
+        {/* Main Content Area */}
+        <main style={{
+          display: 'flex',
+          flex: 1,
+          width: '100%',
+          backgroundColor: 'var(--background)',
+          overflow: 'hidden',
+          padding: '8px',
+          gap: '8px'
+        }}>
+
+          {/* Left Column: Chart + Stock Detail */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            overflow: 'hidden',
+            flex: 1,
+            gap: '8px'
+          }}>
+
+            {/* Chart Area - Set to 50% for more balance */}
+            <div style={{
+              width: '100%',
+              backgroundColor: 'var(--card)',
+              borderRadius: '16px',
+              border: '1px solid var(--border)',
+              overflow: 'hidden',
+              height: '50%',
+              flexShrink: 0,
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+            }}>
               <TradingViewWidget symbol={symbol} theme={theme} />
             </div>
-            {/* Bottom Widgets Gap */}
-            <div className="h-2"></div>
-            {/* Stock Detail Widget */}
-            <div className="flex-1 w-full bg-card rounded-2xl border overflow-hidden shadow-sm">
+
+            {/* Stock Detail Area - Set to 50% for high informativeness */}
+            <div style={{
+              flex: 1,
+              width: '100%',
+              backgroundColor: 'var(--card)',
+              borderRadius: '16px',
+              border: '1px solid var(--border)',
+              overflow: 'hidden',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+            }}>
               <StockDetail key={symbol} symbol={symbol} theme={theme} />
             </div>
           </div>
 
-          {/* AI Assistant Area */}
-          <div className="h-full bg-card rounded-2xl border overflow-hidden shadow-sm" style={{ width: "25%", minWidth: "320px" }}>
+          {/* Right Column: AI Assistant */}
+          <div style={{
+            height: '100%',
+            backgroundColor: 'var(--card)',
+            borderRadius: '16px',
+            border: '1px solid var(--border)',
+            overflow: 'hidden',
+            width: '380px',
+            minWidth: '340px',
+            flexShrink: 0,
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+          }}>
             <AIAssistant />
           </div>
         </main>

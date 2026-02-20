@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, memo } from 'react';
+import React, { memo } from 'react';
 import dynamic from 'next/dynamic';
 
 const AdvancedRealTimeChart = dynamic(
@@ -10,9 +10,9 @@ const AdvancedRealTimeChart = dynamic(
 
 interface TradingViewWidgetProps {
     symbol?: string;
-    theme?: "light" | "dark"; // Fixed literal type error
+    theme?: "light" | "dark";
     autosize?: boolean;
-    locale?: string; // Changed to string to be safe
+    locale?: string;
 }
 
 const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
@@ -22,13 +22,13 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
     locale = "en"
 }) => {
     return (
-        <div className="tradingview-widget-container" style={{ height: "100%", width: "100%" }}>
+        <div style={{ height: '100%', width: '100%' }}>
             <AdvancedRealTimeChart
                 key={symbol}
                 symbol={symbol}
                 theme={theme}
                 autosize={autosize}
-                // @ts-ignore: Library types might be strict
+                // @ts-ignore
                 locale={locale}
                 interval="D"
                 timezone="Etc/UTC"
@@ -38,10 +38,10 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
                 hide_side_toolbar={false}
                 allow_symbol_change={true}
                 save_image={false}
-                container_id="tradingview_85dc0"
+                container_id="tradingview_chart"
             />
         </div>
     );
-}
+};
 
 export default memo(TradingViewWidget);

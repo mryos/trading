@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Search, Sun, Moon, X, TrendingUp, TrendingDown, AlertCircle, ChevronDown, User } from 'lucide-react';
+import { Bell, Search, Sun, Moon, X, TrendingUp, TrendingDown, AlertCircle, User, ChevronRight, Globe, Bitcoin, Landmark } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 
 interface Notification {
@@ -11,40 +11,109 @@ interface Notification {
     time: string;
 }
 
+interface MarketSymbol {
+    symbol: string; // The full TradingView symbol (e.g., "BINANCE:BTCUSDT")
+    displaySymbol: string; // What the user sees (e.g., "BTC")
+    name: string;
+    market: 'IDX' | 'CRYPTO' | 'US_STOCK' | 'FOREX';
+}
+
 interface HeaderProps {
     onSearch?: (symbol: string) => void;
     theme: 'light' | 'dark';
     toggleTheme: () => void;
 }
 
+const MARKET_DATA: MarketSymbol[] = [
+    // IDX
+    { symbol: "IDX:BBCA", displaySymbol: "BBCA", name: "Bank Central Asia Tbk.", market: 'IDX' },
+    { symbol: "IDX:BBRI", displaySymbol: "BBRI", name: "Bank Rakyat Indonesia (Persero) Tbk.", market: 'IDX' },
+    { symbol: "IDX:GOTO", displaySymbol: "GOTO", name: "GoTo Gojek Tokopedia Tbk.", market: 'IDX' },
+    { symbol: "IDX:TLKM", displaySymbol: "TLKM", name: "Telkom Indonesia (Persero) Tbk.", market: 'IDX' },
+    { symbol: "IDX:ASII", displaySymbol: "ASII", name: "Astra International Tbk.", market: 'IDX' },
+
+    // Crypto
+    { symbol: "BINANCE:BTCUSDT", displaySymbol: "BTC", name: "Bitcoin / TetherUS", market: 'CRYPTO' },
+    { symbol: "BINANCE:ETHUSDT", displaySymbol: "ETH", name: "Ethereum / TetherUS", market: 'CRYPTO' },
+    { symbol: "BINANCE:SOLUSDT", displaySymbol: "SOL", name: "Solana / TetherUS", market: 'CRYPTO' },
+    { symbol: "BINANCE:BNBUSDT", displaySymbol: "BNB", name: "BNB / TetherUS", market: 'CRYPTO' },
+    { symbol: "BINANCE:DOGEUSDT", displaySymbol: "DOGE", name: "Dogecoin / TetherUS", market: 'CRYPTO' },
+
+    // US Stocks
+    { symbol: "NASDAQ:AAPL", displaySymbol: "AAPL", name: "Apple Inc.", market: 'US_STOCK' },
+    { symbol: "NASDAQ:TSLA", displaySymbol: "TSLA", name: "Tesla, Inc.", market: 'US_STOCK' },
+    { symbol: "NASDAQ:NVDA", displaySymbol: "NVDA", name: "NVIDIA Corporation", market: 'US_STOCK' },
+    { symbol: "NASDAQ:MSFT", displaySymbol: "MSFT", name: "Microsoft Corporation", market: 'US_STOCK' },
+    { symbol: "NASDAQ:AMZN", displaySymbol: "AMZN", name: "Amazon.com, Inc.", market: 'US_STOCK' },
+
+    // Forex / Global
+    { symbol: "FX:EURUSD", displaySymbol: "EURUSD", name: "Euro / US Dollar", market: 'FOREX' },
+    { symbol: "FX:USDJPY", displaySymbol: "USDJPY", name: "US Dollar / Japanese Yen", market: 'FOREX' },
+    { symbol: "OANDA:XAUUSD", displaySymbol: "GOLD", name: "Gold / US Dollar", market: 'FOREX' },
+];
+
 export default function Header({ onSearch, theme, toggleTheme }: HeaderProps) {
     const [searchValue, setSearchValue] = useState("");
+    const [suggestions, setSuggestions] = useState<MarketSymbol[]>([]);
+    const [showSuggestions, setShowSuggestions] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
     const [notifications, setNotifications] = useState<Notification[]>([]);
-    const notifRef = useRef<HTMLDivElement>(null);
 
-    // Initialize notifications on client-side only
+    const notifRef = useRef<HTMLDivElement>(null);
+    const searchRef = useRef<HTMLDivElement>(null);
+
     useEffect(() => {
         setNotifications([
-            { id: 1, type: 'price_up', title: 'BBCA', message: 'Crossed Rp10.000', time: '2m' },
-            { id: 2, type: 'price_down', title: 'GOTO', message: 'Below Rp50', time: '15m' },
+            { id: 1, type: 'price_up', title: 'BTC', message: 'Crossed $90,000', time: '2m' },
+            { id: 2, type: 'price_down', title: 'BBCA', message: 'Price dipped to Rp10,150', time: '15m' },
         ]);
     }, []);
 
-    // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
                 setShowNotifications(false);
+            }
+            if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+                setShowSuggestions(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setSearchValue(value);
+
+        if (value.length > 0) {
+            const filtered = MARKET_DATA.filter(item =>
+                item.displaySymbol.toLowerCase().includes(value.toLowerCase()) ||
+                item.name.toLowerCase().includes(value.toLowerCase()) ||
+                item.symbol.toLowerCase().includes(value.toLowerCase())
+            ).slice(0, 6);
+            setSuggestions(filtered);
+            setShowSuggestions(true);
+        } else {
+            setSuggestions([]);
+            setShowSuggestions(false);
+        }
+    };
+
+    const handleSuggestionClick = (fullSymbol: string) => {
+        setSearchValue(fullSymbol.split(':')[1] || fullSymbol);
+        setShowSuggestions(false);
+        if (onSearch) onSearch(fullSymbol);
+    };
+
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter' && onSearch) {
-            onSearch(searchValue);
+        if (e.key === 'Enter') {
+            setShowSuggestions(false);
+            if (onSearch) {
+                // If the user typed something with a colon, use it as is
+                // Otherwise, use the generic search handler logic in page.tsx
+                onSearch(searchValue);
+            }
         }
     };
 
@@ -52,82 +121,277 @@ export default function Header({ onSearch, theme, toggleTheme }: HeaderProps) {
         setNotifications(prev => prev.filter(n => n.id !== id));
     };
 
-    const getNotifIcon = (type: string) => {
-        switch (type) {
-            case 'price_up': return <TrendingUp className="w-4 h-4 text-success" />;
-            case 'price_down': return <TrendingDown className="w-4 h-4 text-danger" />;
-            default: return <AlertCircle className="w-4 h-4 text-accent" />;
+    const getMarketIcon = (market: string) => {
+        switch (market) {
+            case 'CRYPTO': return <Bitcoin style={{ width: '12px', height: '12px', color: '#F7931A' }} />;
+            case 'US_STOCK': return <Globe style={{ width: '12px', height: '12px', color: 'var(--accent)' }} />;
+            case 'IDX': return <Landmark style={{ width: '12px', height: '12px', color: 'var(--success)' }} />;
+            default: return <Globe style={{ width: '12px', height: '12px', color: 'var(--text-muted)' }} />;
         }
     };
 
+    const getNotifIcon = (type: string) => {
+        switch (type) {
+            case 'price_up': return <TrendingUp style={{ width: '14px', height: '14px', color: 'var(--success)' }} />;
+            case 'price_down': return <TrendingDown style={{ width: '14px', height: '14px', color: 'var(--danger)' }} />;
+            default: return <AlertCircle style={{ width: '14px', height: '14px', color: 'var(--accent)' }} />;
+        }
+    };
+
+    const iconBtnStyle: React.CSSProperties = {
+        background: 'transparent',
+        border: 'none',
+        cursor: 'pointer',
+        color: 'var(--text-muted)',
+        padding: '8px',
+        borderRadius: '10px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        transition: 'all 0.2s',
+        position: 'relative'
+    };
+
     return (
-        <header className="flex justify-between items-center w-full px-6 border-b bg-card h-16 shrink-0 z-40">
-            <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center shadow-lg shadow-accent/20">
-                        <TrendingUp className="w-5 h-5 text-white" />
-                    </div>
-                    <h1 className="font-bold text-lg tracking-tight text-foreground uppercase italic">AI VEST <span className="text-accent underline decoration-2 underline-offset-4">PRO</span></h1>
+        <header style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            width: '100%',
+            padding: '0 24px',
+            borderBottom: '1px solid var(--border)',
+            backgroundColor: 'var(--card)',
+            height: '64px',
+            flexShrink: 0,
+            zIndex: 40
+        }}>
+            {/* Left: Logo */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{
+                    width: '32px', height: '32px', borderRadius: '8px',
+                    backgroundColor: 'var(--accent)', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 4px 14px rgba(59, 130, 246, 0.3)'
+                }}>
+                    <TrendingUp style={{ width: '18px', height: '18px', color: 'white' }} />
                 </div>
+                <h1 style={{ fontWeight: 700, fontSize: '18px', letterSpacing: '-0.025em', color: 'var(--foreground)', textTransform: 'uppercase', fontStyle: 'italic' }}>
+                    VEST <span style={{ color: 'var(--accent)', textDecoration: 'underline', textDecorationThickness: '2px', textUnderlineOffset: '4px' }}>AI</span>
+                </h1>
             </div>
 
-            <div className="flex items-center gap-6">
-                <div className="hidden md:flex items-center relative group">
-                    <div className="absolute left-3 flex items-center pointer-events-none">
-                        <Search className="w-4 h-4 text-muted group-focus-within:text-accent transition-colors" />
+            {/* Right: Controls */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+
+                {/* Search */}
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }} ref={searchRef}>
+                    <div style={{ position: 'absolute', left: '12px', display: 'flex', alignItems: 'center', pointerEvents: 'none', zIndex: 10 }}>
+                        <Search style={{ width: '15px', height: '15px', color: 'var(--text-muted)' }} />
                     </div>
                     <input
                         type="text"
-                        placeholder="Search stock code..."
+                        placeholder="Search BTC, AAPL, GOTO..."
                         value={searchValue}
-                        onChange={(e) => setSearchValue(e.target.value)}
+                        onChange={handleSearchChange}
                         onKeyDown={handleKeyDown}
-                        className="pl-10 pr-4 py-2 bg-background/50 border border-border/60 rounded-xl text-sm text-foreground focus:outline-none focus:border-accent transition-all w-64 lg:w-96"
+                        style={{
+                            paddingLeft: '38px',
+                            paddingRight: '16px',
+                            paddingTop: '8px',
+                            paddingBottom: '8px',
+                            backgroundColor: 'rgba(var(--background-rgb), 0.5)',
+                            border: '1px solid rgba(var(--border-rgb), 0.6)',
+                            borderRadius: '12px',
+                            fontSize: '13px',
+                            color: 'var(--foreground)',
+                            outline: 'none',
+                            width: '320px',
+                            transition: 'all 0.2s',
+                            fontFamily: 'inherit'
+                        }}
+                        onFocus={e => {
+                            e.currentTarget.style.borderColor = 'var(--accent)';
+                            e.currentTarget.style.width = '400px';
+                            if (suggestions.length > 0) setShowSuggestions(true);
+                        }}
+                        onBlur={e => {
+                            e.currentTarget.style.borderColor = 'rgba(var(--border-rgb), 0.6)';
+                            e.currentTarget.style.width = '320px';
+                        }}
                     />
+
+                    {/* Search Suggestions */}
+                    {showSuggestions && (
+                        <div style={{
+                            position: 'absolute',
+                            top: 'calc(100% + 8px)',
+                            left: 0,
+                            width: '100%',
+                            backgroundColor: 'var(--card)',
+                            borderRadius: '12px',
+                            boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+                            border: '1px solid rgba(var(--border-rgb), 0.5)',
+                            zIndex: 100,
+                            overflow: 'hidden',
+                            animation: 'fade-in 0.15s ease-out'
+                        }}>
+                            {suggestions.length > 0 ? (
+                                <>
+                                    <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(var(--border-rgb), 0.1)', fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                        Quick Suggestions
+                                    </div>
+                                    {suggestions.map((item) => (
+                                        <div
+                                            key={item.symbol}
+                                            onMouseDown={() => handleSuggestionClick(item.symbol)}
+                                            style={{
+                                                padding: '10px 12px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                                cursor: 'pointer',
+                                                transition: 'background-color 0.15s'
+                                            }}
+                                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(var(--accent-rgb, 59, 130, 246), 0.1)')}
+                                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+                                        >
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                <div style={{ width: '28px', height: '28px', borderRadius: '6px', backgroundColor: 'var(--background)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border)' }}>
+                                                    {getMarketIcon(item.market)}
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                    <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--foreground)' }}>{item.displaySymbol}</span>
+                                                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '180px' }}>{item.name}</span>
+                                                </div>
+                                            </div>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <span style={{ fontSize: '9px', color: 'var(--text-muted)', backgroundColor: 'var(--surface)', padding: '2px 6px', borderRadius: '4px', textTransform: 'uppercase' }}>{item.market.replace('_', ' ')}</span>
+                                                <ChevronRight style={{ width: '12px', height: '12px', color: 'var(--text-muted)', opacity: 0.5 }} />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </>
+                            ) : (
+                                <div
+                                    onMouseDown={() => {
+                                        if (onSearch) onSearch(searchValue);
+                                        setShowSuggestions(false);
+                                    }}
+                                    style={{
+                                        padding: '14px 16px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '12px',
+                                        cursor: 'pointer'
+                                    }}
+                                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(var(--accent-rgb, 59, 130, 246), 0.1)')}
+                                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+                                >
+                                    <div style={{ width: '28px', height: '28px', borderRadius: '6px', backgroundColor: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <Search style={{ width: '14px', height: '14px', color: 'white' }} />
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                        <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--foreground)' }}>Search for "{searchValue}"</span>
+                                        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Try full TradingView symbol (e.g. BINANCE:BTCUSDT)</span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    {/* Theme Toggle */}
                     <button
                         onClick={toggleTheme}
-                        className="text-muted hover:text-foreground p-2 rounded-xl transition-all hover:bg-surface"
-                        style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
+                        style={iconBtnStyle}
+                        onMouseEnter={e => (e.currentTarget.style.color = 'var(--foreground)')}
+                        onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
                     >
-                        {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                        {theme === 'dark'
+                            ? <Sun style={{ width: '18px', height: '18px' }} />
+                            : <Moon style={{ width: '18px', height: '18px' }} />
+                        }
                     </button>
 
-                    <div className="relative" ref={notifRef}>
+                    {/* Notifications */}
+                    <div style={{ position: 'relative' }} ref={notifRef}>
                         <button
                             onClick={() => setShowNotifications(!showNotifications)}
-                            className={`text-muted hover:text-foreground p-2 rounded-xl transition-all relative ${showNotifications ? 'bg-surface' : 'hover:bg-surface'}`}
-                            style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
+                            style={{
+                                ...iconBtnStyle,
+                                backgroundColor: showNotifications ? 'var(--surface)' : 'transparent',
+                                color: showNotifications ? 'var(--foreground)' : 'var(--text-muted)'
+                            }}
                         >
-                            <Bell className="w-5 h-5" />
+                            <Bell style={{ width: '18px', height: '18px' }} />
                             {notifications.length > 0 && (
-                                <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-danger rounded-full border-2 border-card"></span>
+                                <span style={{
+                                    position: 'absolute',
+                                    top: '8px',
+                                    right: '8px',
+                                    width: '7px',
+                                    height: '7px',
+                                    backgroundColor: 'var(--danger)',
+                                    borderRadius: '50%',
+                                    border: '2px solid var(--card)'
+                                }} />
                             )}
                         </button>
 
                         {showNotifications && (
-                            <div className="absolute top-full right-0 mt-2 w-72 glass rounded-2xl shadow-2xl z-[100] overflow-hidden border border-border/50">
-                                <div className="px-4 py-3 border-b border-border/30 flex justify-between items-center bg-card">
-                                    <span className="font-bold text-xs">NOTIFICATIONS</span>
-                                    <span className="text-[10px] bg-accent/10 text-accent px-1.5 py-0.5 rounded font-bold">{notifications.length}</span>
+                            <div style={{
+                                position: 'absolute',
+                                top: 'calc(100% + 8px)',
+                                right: 0,
+                                width: '280px',
+                                backgroundColor: 'var(--card)',
+                                borderRadius: '16px',
+                                boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+                                zIndex: 100,
+                                overflow: 'hidden',
+                                border: '1px solid rgba(var(--border-rgb), 0.5)',
+                                animation: 'fade-in 0.15s ease-out'
+                            }}>
+                                <div style={{
+                                    padding: '12px 16px',
+                                    borderBottom: '1px solid rgba(var(--border-rgb), 0.3)',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center'
+                                }}>
+                                    <span style={{ fontWeight: 700, fontSize: '11px', textTransform: 'uppercase' }}>Alerts</span>
+                                    <button onClick={() => setNotifications([])} style={{ fontSize: '10px', color: 'var(--accent)', background: 'transparent', border: 'none', cursor: 'pointer' }}>Clear all</button>
                                 </div>
-                                <div className="max-h-64 overflow-y-auto custom-scrollbar">
+                                <div className="custom-scrollbar" style={{ maxHeight: '260px', overflowY: 'auto' }}>
                                     {notifications.length === 0 ? (
-                                        <div className="p-8 text-center bg-card">
-                                            <p className="text-xs text-muted">All clear!</p>
+                                        <div style={{ padding: '32px', textAlign: 'center' }}>
+                                            <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>No new alerts</p>
                                         </div>
                                     ) : (
                                         notifications.map(notif => (
-                                            <div key={notif.id} className="px-4 py-3 border-b border-border/10 flex items-start gap-3 relative hover:bg-muted-10 transition-colors bg-card">
-                                                <div className="mt-0.5">{getNotifIcon(notif.type)}</div>
-                                                <div className="flex-1">
-                                                    <p className="text-[11px] font-bold text-foreground leading-tight">{notif.title}</p>
-                                                    <p className="text-[10px] text-muted mt-0.5">{notif.message}</p>
+                                            <div
+                                                key={notif.id}
+                                                style={{
+                                                    padding: '12px 16px',
+                                                    borderBottom: '1px solid rgba(var(--border-rgb), 0.1)',
+                                                    display: 'flex',
+                                                    alignItems: 'flex-start',
+                                                    gap: '12px',
+                                                    backgroundColor: 'var(--card)',
+                                                    transition: 'all 0.15s'
+                                                }}
+                                            >
+                                                <div style={{ marginTop: '2px' }}>{getNotifIcon(notif.type)}</div>
+                                                <div style={{ flex: 1 }}>
+                                                    <p style={{ fontSize: '11px', fontWeight: 700, color: 'var(--foreground)', lineHeight: 1.2 }}>{notif.title}</p>
+                                                    <p style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>{notif.message}</p>
                                                 </div>
-                                                <button onClick={() => clearNotification(notif.id)} className="text-muted hover:text-danger opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}>
-                                                    <X className="w-3 h-3" />
+                                                <button
+                                                    onClick={() => clearNotification(notif.id)}
+                                                    style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '2px' }}
+                                                >
+                                                    <X style={{ width: '12px', height: '12px' }} />
                                                 </button>
                                             </div>
                                         ))
@@ -137,15 +401,16 @@ export default function Header({ onSearch, theme, toggleTheme }: HeaderProps) {
                         )}
                     </div>
 
-                    <div className="h-6 w-px bg-border mx-1"></div>
+                    <div style={{ width: '1px', height: '24px', backgroundColor: 'var(--border)', margin: '0 4px' }} />
 
-                    <div className="flex items-center gap-2 pr-2">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-accent to-accent-hover flex items-center justify-center text-white shadow-lg shadow-accent/20">
-                            <User className="w-4 h-4" />
-                        </div>
-                        <div className="hidden lg:flex flex-col">
-                            <span className="text-[10px] font-bold leading-none text-foreground uppercase">Pro Member</span>
-                            <span className="text-[9px] text-success font-medium">Verified</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingRight: '4px' }}>
+                        <div style={{
+                            width: '32px', height: '32px', borderRadius: '50%',
+                            background: 'linear-gradient(135deg, var(--accent), var(--accent-hover))',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            color: 'white'
+                        }}>
+                            <User style={{ width: '15px', height: '15px' }} />
                         </div>
                     </div>
                 </div>

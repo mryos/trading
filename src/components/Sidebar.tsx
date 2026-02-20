@@ -2,27 +2,79 @@ import { Settings, Target } from 'lucide-react';
 
 export default function Sidebar() {
     return (
-        <aside className="flex flex-col h-screen w-16 bg-card border-r items-center py-6 z-50 shrink-0">
+        <aside style={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100vh',
+            width: '64px',
+            backgroundColor: 'var(--card)',
+            borderRight: '1px solid var(--border)',
+            alignItems: 'center',
+            padding: '24px 0',
+            zIndex: 50,
+            flexShrink: 0
+        }}>
             {/* Brand Icon */}
-            <div className="group relative flex items-center justify-center">
-                <div className="p-3 bg-accent text-white rounded-2xl hover:rotate-12 transition-all cursor-pointer shadow-xl shadow-accent/40 active:scale-95">
-                    <Target className="w-6 h-6" />
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div
+                    style={{
+                        padding: '10px',
+                        backgroundColor: 'var(--accent)',
+                        color: 'white',
+                        borderRadius: '12px',
+                        cursor: 'pointer',
+                        boxShadow: '0 8px 20px rgba(59, 130, 246, 0.4)',
+                        transition: 'transform 0.2s, box-shadow 0.2s',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}
+                    onMouseEnter={e => {
+                        e.currentTarget.style.transform = 'rotate(12deg)';
+                        e.currentTarget.style.boxShadow = '0 12px 24px rgba(59, 130, 246, 0.5)';
+                    }}
+                    onMouseLeave={e => {
+                        e.currentTarget.style.transform = 'rotate(0deg)';
+                        e.currentTarget.style.boxShadow = '0 8px 20px rgba(59, 130, 246, 0.4)';
+                    }}
+                    onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.95) rotate(12deg)'; }}
+                    onMouseUp={e => { e.currentTarget.style.transform = 'rotate(12deg)'; }}
+                >
+                    <Target style={{ width: '22px', height: '22px' }} />
                 </div>
             </div>
 
-            <div className="flex-1"></div>
+            <div style={{ flex: 1 }} />
 
             {/* Bottom Actions */}
-            <div className="w-full flex flex-col items-center gap-4 mb-6">
-                <button
-                    className="p-3 text-muted hover:text-foreground hover:bg-surface rounded-2xl transition-all group relative"
-                    style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
-                >
-                    <Settings className="w-5 h-5" />
-                    <span className="absolute left-full ml-3 px-2 py-1 bg-card border text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100]">
-                        Settings
-                    </span>
-                </button>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
+                <div style={{ position: 'relative' }} className="group">
+                    <button
+                        style={{
+                            padding: '10px',
+                            color: 'var(--text-muted)',
+                            borderRadius: '12px',
+                            border: 'none',
+                            background: 'transparent',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={e => {
+                            e.currentTarget.style.color = 'var(--foreground)';
+                            e.currentTarget.style.backgroundColor = 'var(--surface)';
+                        }}
+                        onMouseLeave={e => {
+                            e.currentTarget.style.color = 'var(--text-muted)';
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                        }}
+                        title="Settings"
+                    >
+                        <Settings style={{ width: '18px', height: '18px' }} />
+                    </button>
+                </div>
             </div>
         </aside>
     );

@@ -14,25 +14,20 @@ interface TopStocksProps {
 
 export default function TopStocks({ theme = "dark" }: TopStocksProps) {
     const symbols = [
-        { proName: "IDX:BBCA", title: "BCA" },
-        { proName: "IDX:BBRI", title: "BRI" },
-        { proName: "IDX:BMRI", title: "Mandiri" },
-        { proName: "IDX:TLKM", title: "Telkom" },
-        { proName: "IDX:ASII", title: "Astra" },
-        { proName: "IDX:UNVR", title: "Unilever" },
+        { proName: "BINANCE:BTCUSDT", title: "BTC/USDT" },
+        { proName: "BINANCE:ETHUSDT", title: "ETH/USDT" },
+        { proName: "NASDAQ:AAPL", title: "Apple" },
+        { proName: "NASDAQ:TSLA", title: "Tesla" },
+        { proName: "IDX:BBCA", title: "BBCA" },
         { proName: "IDX:GOTO", title: "GoTo" },
-        { proName: "IDX:BBNI", title: "BNI" },
-        { proName: "IDX:ICBP", title: "Indofood CBP" },
-        { proName: "IDX:KLBF", title: "Kalbe Farma" },
-        { proName: "IDX:HMSP", title: "HM Sampoerna" },
-        { proName: "IDX:ANTM", title: "Aneka Tambang" },
-        { proName: "IDX:PGAS", title: "PGN" },
-        { proName: "IDX:MDKA", title: "Merdeka Copper" },
-        { proName: "IDX:ACES", title: "Ace Hardware" },
+        { proName: "IDX:BBRI", title: "BBRI" },
+        { proName: "NASDAQ:NVDA", title: "Nvidia" },
+        { proName: "BINANCE:SOLUSDT", title: "Solana" },
+        { proName: "FX:EURUSD", title: "EUR/USD" },
     ];
 
     return (
-        <div className="w-full overflow-hidden bg-card" style={{ height: "46px" }}>
+        <div style={{ width: '100%', overflow: 'hidden', backgroundColor: 'var(--card)', height: '46px' }}>
             <TickerTape
                 colorTheme={theme}
                 symbols={symbols}

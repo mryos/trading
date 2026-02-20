@@ -2,11 +2,11 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'AI Vest | Advanced Trading Terminal',
-  description: 'Next-generation trading platform with real-time analytics',
+  title: 'AI Vest PRO | Advanced Trading Terminal',
+  description: 'Next-generation AI-powered trading platform with real-time analytics for IDX stocks.',
 };
 
 export default function RootLayout({
@@ -15,8 +15,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
+    <html lang="en" data-theme="dark">
+      <body className={inter.variable}>{children}</body>
     </html>
   );
 }

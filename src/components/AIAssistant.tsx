@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Sparkles } from 'lucide-react';
+import { Send, Bot, Trash2, RefreshCcw } from 'lucide-react';
 
 interface Message {
     id: number;
@@ -14,7 +14,6 @@ export default function AIAssistant() {
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
     const [isTyping, setIsTyping] = useState(false);
-    const [isClient, setIsClient] = useState(false);
     const [messageCount, setMessageCount] = useState(0);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -24,12 +23,9 @@ export default function AIAssistant() {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
 
-    // Initialize on client-side and load count
-    useEffect(() => {
-        setIsClient(true);
+    const loadMessages = () => {
         const savedCount = localStorage.getItem('ai_message_count');
         if (savedCount) setMessageCount(parseInt(savedCount));
-
         setMessages([
             {
                 id: 1,
@@ -38,16 +34,31 @@ export default function AIAssistant() {
                 timestamp: new Date()
             }
         ]);
+    };
+
+    useEffect(() => {
+        loadMessages();
     }, []);
 
     useEffect(() => {
         scrollToBottom();
     }, [messages, isTyping]);
 
+    const handleClearChat = () => {
+        if (confirm("Hapus semua pesan chat?")) {
+            loadMessages();
+        }
+    };
+
+    const handleResetLimit = () => {
+        setMessageCount(0);
+        localStorage.setItem('ai_message_count', '0');
+        alert("Chat limit has been reset for testing.");
+    };
+
     const handleSend = async () => {
         if (!input.trim() || isTyping) return;
 
-        // Check Limit
         if (messageCount >= MESSAGE_LIMIT) {
             const limitMsg: Message = {
                 id: Date.now(),
@@ -72,7 +83,6 @@ export default function AIAssistant() {
         setInput('');
         setIsTyping(true);
 
-        // Update count
         const newCount = messageCount + 1;
         setMessageCount(newCount);
         localStorage.setItem('ai_message_count', newCount.toString());
@@ -122,107 +132,206 @@ export default function AIAssistant() {
     };
 
     return (
-        <div className="flex flex-col h-full bg-card font-sans overflow-hidden">
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: 'var(--card)', fontFamily: 'Inter, sans-serif', overflow: 'hidden' }}>
+
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b bg-card z-10 shrink-0">
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center">
-                        <Bot className="w-5 h-5 text-white" />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid var(--border)', backgroundColor: 'var(--card)', flexShrink: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Bot style={{ width: '18px', height: '18px', color: 'white' }} />
                     </div>
                     <div>
-                        <h3 className="font-bold text-sm text-foreground">AI Vest Assistant</h3>
-                        <div className="flex items-center gap-1.5 leading-none">
-                            <span className="w-1.5 h-1.5 rounded-full bg-success"></span>
-                            <span className="text-[10px] text-muted font-medium">Online</span>
+                        <div style={{ fontWeight: 700, fontSize: '13px', color: 'var(--foreground)' }}>AI Vest Assistant</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '2px' }}>
+                            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'var(--success)', display: 'inline-block' }}></span>
+                            <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 500 }}>Online</span>
                         </div>
                     </div>
                 </div>
-                {messageCount >= MESSAGE_LIMIT && (
-                    <button className="px-2 py-1 bg-accent/20 text-accent text-[10px] font-bold rounded-lg border border-accent/30 animate-pulse">
-                        UPGRADE PRO
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <button
+                        onClick={handleClearChat}
+                        style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '6px', borderRadius: '8px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(var(--border-rgb), 0.2)'}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                        title="Clear Chat"
+                    >
+                        <Trash2 style={{ width: '16px', height: '16px' }} />
                     </button>
-                )}
+                    {messageCount >= MESSAGE_LIMIT && (
+                        <button
+                            style={{
+                                padding: '4px 10px',
+                                backgroundColor: 'rgba(59, 130, 246, 0.15)',
+                                color: 'var(--accent)',
+                                fontSize: '10px',
+                                fontWeight: 700,
+                                borderRadius: '8px',
+                                border: '1px solid rgba(59, 130, 246, 0.3)',
+                                cursor: 'pointer',
+                                animation: 'pulse 2s infinite'
+                            }}
+                        >
+                            UPGRADE PRO
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Messages List */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-background/30" style={{ minHeight: 0 }}>
+            <div
+                className="custom-scrollbar"
+                style={{
+                    flex: 1,
+                    overflowY: 'auto',
+                    padding: '16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '16px',
+                    backgroundColor: 'rgba(var(--background-rgb), 0.3)',
+                    minHeight: 0
+                }}
+            >
                 {messages.map((msg) => (
                     <div
                         key={msg.id}
-                        className={`flex w-full ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                        style={{
+                            display: 'flex',
+                            width: '100%',
+                            justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start'
+                        }}
                     >
-                        <div className={`max-w-[85%] flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
+                        <div style={{ maxWidth: '85%', display: 'flex', flexDirection: 'column', alignItems: msg.sender === 'user' ? 'flex-end' : 'flex-start' }}>
                             <div
-                                className={`px-4 py-2.5 text-[13px] rounded-2xl shadow-sm break-words whitespace-pre-wrap ${msg.sender === 'user'
-                                    ? 'bg-accent text-white rounded-br-none'
-                                    : 'bg-card text-foreground border border-border/50 rounded-bl-none'
-                                    }`}
+                                style={{
+                                    padding: '10px 14px',
+                                    fontSize: '13px',
+                                    borderRadius: msg.sender === 'user' ? '16px 16px 0 16px' : '16px 16px 16px 0',
+                                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                                    wordWrap: 'break-word',
+                                    whiteSpace: 'pre-wrap',
+                                    backgroundColor: msg.sender === 'user' ? 'var(--accent)' : 'var(--card)',
+                                    color: msg.sender === 'user' ? 'white' : 'var(--foreground)',
+                                    border: msg.sender === 'bot' ? '1px solid rgba(var(--border-rgb), 0.5)' : 'none'
+                                }}
                             >
                                 {msg.text}
                             </div>
-                            <span className="text-[9px] text-muted mt-1 px-1 opacity-60">
+                            <span style={{ fontSize: '9px', color: 'var(--text-muted)', marginTop: '4px', padding: '0 4px', opacity: 0.6 }}>
                                 {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
                         </div>
                     </div>
                 ))}
+
                 {isTyping && (
-                    <div className="flex justify-start w-full">
-                        <div className="bg-card border border-border/50 px-4 py-3 rounded-2xl rounded-bl-none shadow-sm flex items-center gap-1">
-                            <span className="w-1.5 h-1.5 bg-muted rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                            <span className="w-1.5 h-1.5 bg-muted rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                            <span className="w-1.5 h-1.5 bg-muted rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                    <div style={{ display: 'flex', justifyContent: 'flex-start', width: '100%', alignItems: 'center', gap: '8px' }}>
+                        <div style={{
+                            backgroundColor: 'var(--card)',
+                            border: '1px solid rgba(var(--border-rgb), 0.5)',
+                            padding: '10px 14px',
+                            borderRadius: '16px 16px 16px 0',
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '5px'
+                        }}>
+                            <span className="animate-bounce" style={{ width: '5px', height: '5px', backgroundColor: 'var(--accent)', borderRadius: '50%', display: 'inline-block', animationDelay: '0ms' }}></span>
+                            <span className="animate-bounce" style={{ width: '5px', height: '5px', backgroundColor: 'var(--accent)', borderRadius: '50%', display: 'inline-block', animationDelay: '150ms' }}></span>
+                            <span className="animate-bounce" style={{ width: '5px', height: '5px', backgroundColor: 'var(--accent)', borderRadius: '50%', display: 'inline-block', animationDelay: '300ms' }}></span>
                         </div>
+                        <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontStyle: 'italic' }}>AI is analyzing...</span>
                     </div>
                 )}
                 <div ref={messagesEndRef} />
             </div>
 
             {/* Input Area */}
-            <div className="p-4 bg-card border-t border-border/50 shrink-0">
-                <div className={`flex items-center gap-2 bg-background border border-border/80 rounded-full px-4 py-2 focus-within:border-accent transition-all ${messageCount >= MESSAGE_LIMIT ? 'opacity-50 pointer-events-none' : ''}`}>
+            <div style={{ padding: '12px 16px', backgroundColor: 'var(--card)', borderTop: '1px solid var(--border)', flexShrink: 0 }}>
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    backgroundColor: 'var(--background)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '999px',
+                    padding: '8px 8px 8px 16px',
+                    opacity: messageCount >= MESSAGE_LIMIT ? 0.5 : 1,
+                    pointerEvents: messageCount >= MESSAGE_LIMIT ? 'none' : 'auto',
+                    transition: 'border-color 0.2s'
+                }}>
                     <input
                         type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyPress={handleKeyPress}
                         placeholder={messageCount >= MESSAGE_LIMIT ? "Limit reached..." : "Tanya tentang saham..."}
-                        className="flex-1 bg-transparent text-sm text-foreground focus:outline-none placeholder:text-muted/50"
-                        style={{ minWidth: 0 }}
                         disabled={messageCount >= MESSAGE_LIMIT}
+                        style={{
+                            flex: 1,
+                            background: 'transparent',
+                            fontSize: '13px',
+                            color: 'var(--foreground)',
+                            outline: 'none',
+                            border: 'none',
+                            minWidth: 0
+                        }}
                     />
                     <button
                         onClick={handleSend}
                         disabled={!input.trim() || messageCount >= MESSAGE_LIMIT}
-                        className={`p-2 rounded-full transition-all flex-shrink-0 ${input.trim() && messageCount < MESSAGE_LIMIT
-                            ? 'bg-accent text-white shadow-lg'
-                            : 'bg-muted-10 text-muted'
-                            }`}
-                        style={{ border: 'none', cursor: messageCount < MESSAGE_LIMIT ? 'pointer' : 'not-allowed' }}
+                        style={{
+                            padding: '7px',
+                            borderRadius: '50%',
+                            border: 'none',
+                            cursor: input.trim() && messageCount < MESSAGE_LIMIT ? 'pointer' : 'not-allowed',
+                            backgroundColor: input.trim() && messageCount < MESSAGE_LIMIT ? 'var(--accent)' : 'rgba(139, 148, 158, 0.15)',
+                            color: input.trim() && messageCount < MESSAGE_LIMIT ? 'white' : 'var(--text-muted)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'all 0.2s',
+                            flexShrink: 0
+                        }}
                     >
-                        <Send className="w-4 h-4" />
+                        <Send style={{ width: '15px', height: '15px' }} />
                     </button>
                 </div>
-                {messageCount < MESSAGE_LIMIT ? (
-                    <p className="text-[9px] text-center text-muted mt-2 opacity-50">
-                        Sisa pesan gratis hari ini: <span className="font-bold text-accent">{MESSAGE_LIMIT - messageCount}</span>
-                    </p>
-                ) : (
-                    <div className="flex flex-col items-center gap-1.5 mt-2">
-                        <p className="text-[9px] text-center text-accent font-bold uppercase tracking-widest">
-                            Gabung PRO untuk akses tak terbatas
+
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginTop: '8px' }}>
+                    {messageCount < MESSAGE_LIMIT ? (
+                        <p style={{ fontSize: '9px', color: 'var(--text-muted)', opacity: 0.6 }}>
+                            Sisa pesan gratis hari ini:{' '}
+                            <span style={{ fontWeight: 700, color: 'var(--accent)' }}>{MESSAGE_LIMIT - messageCount}</span>
                         </p>
-                        <button
-                            onClick={() => {
-                                setMessageCount(0);
-                                localStorage.setItem('ai_message_count', '0');
-                            }}
-                            className="text-[9px] text-muted hover:text-foreground underline cursor-pointer bg-transparent border-none"
-                        >
-                            Reset Limit (Testing Only)
-                        </button>
-                    </div>
-                )}
+                    ) : (
+                        <p style={{ fontSize: '9px', color: 'var(--accent)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                            Limit reached. Upgrade to PRO
+                        </p>
+                    )}
+
+                    <button
+                        onClick={handleResetLimit}
+                        style={{
+                            fontSize: '9px',
+                            color: 'var(--text-muted)',
+                            background: 'transparent',
+                            border: 'none',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            padding: '2px 6px',
+                            borderRadius: '4px'
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(var(--border-rgb), 0.1)'}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                    >
+                        <RefreshCcw style={{ width: '10px', height: '10px' }} />
+                        Reset for Test
+                    </button>
+                </div>
             </div>
         </div>
     );
