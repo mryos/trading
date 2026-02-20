@@ -10,12 +10,21 @@ import AlphaSignals from '@/components/AlphaSignals';
 import MarketSentiment from '@/components/MarketSentiment';
 import AIPulse from '@/components/AIPulse';
 import PricingModal from '@/components/PricingModal';
+import BrokerModal from '@/components/BrokerModal';
+import { useEffect } from 'react';
 
 export default function Home() {
   const [symbol, setSymbol] = useState("IDX:BBCA");
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [isPricingOpen, setIsPricingOpen] = useState(false);
+  const [isBrokerOpen, setIsBrokerOpen] = useState(false);
   const [isPro, setIsPro] = useState(false); // Presentation dummy state
+
+  useEffect(() => {
+    const handleOpenBroker = () => setIsBrokerOpen(true);
+    window.addEventListener('open-broker-selector', handleOpenBroker);
+    return () => window.removeEventListener('open-broker-selector', handleOpenBroker);
+  }, []);
 
   const handleSearch = (query: string) => {
     // ... search logic ...
@@ -141,6 +150,10 @@ export default function Home() {
       <PricingModal
         isOpen={isPricingOpen}
         onClose={() => setIsPricingOpen(false)}
+      />
+      <BrokerModal
+        isOpen={isBrokerOpen}
+        onClose={() => setIsBrokerOpen(false)}
       />
     </div>
   );

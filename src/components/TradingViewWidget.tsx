@@ -56,8 +56,61 @@ function TradingViewWidget({ symbol, theme }: TradingViewWidgetProps) {
     }, [symbol, theme]);
 
     return (
-        <div className="tradingview-widget-container" ref={container} style={{ height: "100%", width: "100%" }}>
-            <div id="tradingview_advanced_chart" style={{ height: "calc(100%)", width: "100%" }} />
+        <div style={{ height: "100%", width: "100%", position: 'relative' }}>
+            <div className="tradingview-widget-container" ref={container} style={{ height: "100%", width: "100%" }}>
+                <div id="tradingview_advanced_chart" style={{ height: "100%", width: "100%" }} />
+            </div>
+
+            {/* Floating Action Buttons over Chart (Shifted Right for OHLC Visibility) */}
+            <div style={{
+                position: 'absolute',
+                top: '12px',
+                left: '65%',
+                transform: 'translateX(-50%)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                zIndex: 10,
+                padding: '4px',
+                borderRadius: '8px',
+                backgroundColor: theme === 'dark' ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.8)',
+                backdropFilter: 'blur(4px)',
+                border: '1px solid var(--border)'
+            }}>
+                {/* Sell Button */}
+                <button
+                    onClick={() => window.dispatchEvent(new CustomEvent('open-broker-selector'))}
+                    style={{
+                        padding: '6px 16px',
+                        backgroundColor: 'transparent',
+                        border: '1.5px solid #ef4444',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        fontWeight: 900,
+                        color: '#ef4444'
+                    }}
+                >
+                    SELL
+                </button>
+
+                {/* Buy Button */}
+                <button
+                    onClick={() => window.dispatchEvent(new CustomEvent('open-broker-selector'))}
+                    style={{
+                        padding: '6px 16px',
+                        backgroundColor: 'transparent',
+                        border: '1.5px solid #3b82f6',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        fontWeight: 900,
+                        color: '#3b82f6'
+                    }}
+                >
+                    BUY
+                </button>
+            </div>
         </div>
     );
 }

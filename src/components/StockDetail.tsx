@@ -37,7 +37,6 @@ export default function StockDetail({ symbol, theme, isPro = false }: StockDetai
     const tabs = [
         { id: 'news' as TabType, label: 'Market News', icon: Newspaper, visible: true },
         { id: 'strategy' as TabType, label: 'AI Strategy', icon: Brain, visible: true },
-        { id: 'trade' as TabType, label: 'Trade', icon: TrendingUp, visible: true },
         { id: 'financial' as TabType, label: 'Financials', icon: LayoutDashboard, visible: isStock },
     ];
 
@@ -160,11 +159,6 @@ export default function StockDetail({ symbol, theme, isPro = false }: StockDetai
                         </div>
                     )}
 
-                    {activeTab === 'trade' && (
-                        <div style={{ height: '100%', width: '100%' }}>
-                            <OrderEntry symbol={symbol} theme={theme} />
-                        </div>
-                    )}
 
                     {activeTab === 'strategy' && (
                         <div style={{ padding: '24px', height: '100%', position: 'relative' }}>
@@ -284,23 +278,25 @@ export default function StockDetail({ symbol, theme, isPro = false }: StockDetai
                                                 <Send style={{ width: '16px', height: '16px' }} />
                                                 SEND TO TELEGRAM
                                             </button>
-                                            <button style={{
-                                                flex: 1,
-                                                height: '48px',
-                                                borderRadius: '14px',
-                                                backgroundColor: '#2b2b2b',
-                                                color: 'white',
-                                                border: '1px solid rgba(255,255,255,0.1)',
-                                                fontWeight: 800,
-                                                fontSize: '13px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                gap: '8px',
-                                                cursor: 'pointer'
-                                            }}>
+                                            <button
+                                                onClick={() => window.dispatchEvent(new CustomEvent('open-broker-selector'))}
+                                                style={{
+                                                    flex: 1,
+                                                    height: '48px',
+                                                    borderRadius: '14px',
+                                                    backgroundColor: '#2b2b2b',
+                                                    color: 'white',
+                                                    border: '1px solid rgba(255,255,255,0.1)',
+                                                    fontWeight: 800,
+                                                    fontSize: '13px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    gap: '8px',
+                                                    cursor: 'pointer'
+                                                }}>
                                                 <Terminal style={{ width: '16px', height: '16px' }} />
-                                                EXECUTE VIA MT5
+                                                EXECUTE VIA BROKER
                                             </button>
                                         </div>
                                     </div>
