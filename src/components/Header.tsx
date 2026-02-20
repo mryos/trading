@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Search, Sun, Moon, X, TrendingUp, TrendingDown, AlertCircle, User, ChevronRight, Globe, Bitcoin, Landmark } from 'lucide-react';
+import { Bell, Search, Sun, Moon, X, TrendingUp, TrendingDown, AlertCircle, User, ChevronRight, Globe, Bitcoin, Landmark, Zap } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 
 interface Notification {
@@ -22,6 +22,8 @@ interface HeaderProps {
     onSearch?: (symbol: string) => void;
     theme: 'light' | 'dark';
     toggleTheme: () => void;
+    isPro: boolean;
+    onTogglePro: () => void;
 }
 
 const MARKET_DATA: MarketSymbol[] = [
@@ -52,15 +54,17 @@ const MARKET_DATA: MarketSymbol[] = [
     { symbol: "OANDA:XAUUSD", displaySymbol: "GOLD", name: "Gold / US Dollar", market: 'FOREX' },
 ];
 
-export default function Header({ onSearch, theme, toggleTheme }: HeaderProps) {
+export default function Header({ onSearch, theme, toggleTheme, isPro, onTogglePro }: HeaderProps) {
     const [searchValue, setSearchValue] = useState("");
     const [suggestions, setSuggestions] = useState<MarketSymbol[]>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
+    const [showUserMenu, setShowUserMenu] = useState(false);
     const [notifications, setNotifications] = useState<Notification[]>([]);
 
     const notifRef = useRef<HTMLDivElement>(null);
     const searchRef = useRef<HTMLDivElement>(null);
+    const userMenuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         setNotifications([
@@ -76,6 +80,9 @@ export default function Header({ onSearch, theme, toggleTheme }: HeaderProps) {
             }
             if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
                 setShowSuggestions(false);
+            }
+            if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+                setShowUserMenu(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
@@ -403,15 +410,141 @@ export default function Header({ onSearch, theme, toggleTheme }: HeaderProps) {
 
                     <div style={{ width: '1px', height: '24px', backgroundColor: 'var(--border)', margin: '0 4px' }} />
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingRight: '4px' }}>
-                        <div style={{
-                            width: '32px', height: '32px', borderRadius: '50%',
-                            background: 'linear-gradient(135deg, var(--accent), var(--accent-hover))',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            color: 'white'
-                        }}>
-                            <User style={{ width: '15px', height: '15px' }} />
+                    <div style={{ position: 'relative' }} ref={userMenuRef}>
+                        <div
+                            onClick={() => setShowUserMenu(!showUserMenu)}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '12px',
+                                padding: '4px 8px',
+                                borderRadius: '12px',
+                                cursor: 'pointer',
+                                backgroundColor: showUserMenu ? 'var(--surface)' : 'transparent',
+                                transition: 'all 0.2s',
+                                border: '1px solid transparent'
+                            }}
+                            onMouseEnter={e => !showUserMenu && (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)')}
+                            onMouseLeave={e => !showUserMenu && (e.currentTarget.style.backgroundColor = 'transparent')}
+                        >
+                            <div style={{
+                                width: '34px',
+                                height: '34px',
+                                borderRadius: '50%',
+                                background: isPro ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'linear-gradient(135deg, var(--accent), var(--accent-hover))',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: 'white',
+                                boxShadow: isPro ? '0 0 15px rgba(245, 158, 11, 0.4)' : 'none',
+                                border: '2px solid var(--card)'
+                            }}>
+                                <User style={{ width: '16px', height: '16px' }} />
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0px' }}>
+                                <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--foreground)' }}>Andy Trader</span>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#22c55e' }} />
+                                    <span style={{ fontSize: '9px', fontWeight: 700, color: isPro ? '#f59e0b' : 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+                                        {isPro ? 'PRO ACCOUNT' : 'GUEST USER'}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
+
+                        {showUserMenu && (
+                            <div style={{
+                                position: 'absolute',
+                                top: 'calc(100% + 12px)',
+                                right: 0,
+                                width: '240px',
+                                backgroundColor: 'var(--card)',
+                                borderRadius: '16px',
+                                boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
+                                border: '1px solid var(--border)',
+                                zIndex: 100,
+                                overflow: 'hidden',
+                                animation: 'fade-in 0.1s ease-out'
+                            }}>
+                                <div style={{ padding: '16px', borderBottom: '1px solid var(--border)', backgroundColor: 'rgba(255,255,255,0.02)' }}>
+                                    <p style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '4px' }}>Signed in as</p>
+                                    <p style={{ fontSize: '13px', fontWeight: 800, color: 'var(--foreground)' }}>andy.trader@gmail.com</p>
+                                </div>
+                                <div style={{ padding: '8px' }}>
+                                    <button
+                                        onClick={() => {
+                                            onTogglePro();
+                                            setShowUserMenu(false);
+                                        }}
+                                        style={{
+                                            width: '100%',
+                                            padding: '12px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '8px',
+                                            backgroundColor: isPro ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)',
+                                            color: isPro ? '#ef4444' : '#f59e0b',
+                                            border: isPro ? '1px solid rgba(239, 68, 68, 0.2)' : '1px solid rgba(245, 158, 11, 0.2)',
+                                            borderRadius: '10px',
+                                            cursor: 'pointer',
+                                            fontSize: '11px',
+                                            fontWeight: 800,
+                                            marginBottom: '8px',
+                                            transition: 'all 0.2s'
+                                        }}
+                                    >
+                                        <Zap style={{ width: '14px', height: '14px' }} />
+                                        {isPro ? 'DOWNGRADE TO FREE' : 'SWITCH TO PRO MODE'}
+                                    </button>
+
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                        {[
+                                            { id: 'settings', label: 'Account Settings', icon: User },
+                                            { id: 'portfolio', label: 'Portfolio View', icon: TrendingUp },
+                                            { id: 'market', label: 'Global Market', icon: Globe },
+                                            { id: 'logout', label: 'Logout', icon: X }
+                                        ].map((item) => (
+                                            <div
+                                                key={item.id}
+                                                onClick={() => {
+                                                    setShowUserMenu(false);
+                                                    if (item.id === 'logout') {
+                                                        if (isPro) onTogglePro();
+                                                        alert("Logging out of presentation mode...");
+                                                    } else {
+                                                        alert(`Redirecting to ${item.label}... (Presentation Dummy)`);
+                                                    }
+                                                }}
+                                                style={{
+                                                    padding: '10px 12px',
+                                                    fontSize: '12px',
+                                                    fontWeight: 600,
+                                                    color: 'var(--text-muted)',
+                                                    cursor: 'pointer',
+                                                    borderRadius: '8px',
+                                                    transition: 'all 0.15s',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '10px'
+                                                }}
+                                                onMouseEnter={e => {
+                                                    e.currentTarget.style.backgroundColor = 'var(--surface)';
+                                                    e.currentTarget.style.color = 'var(--foreground)';
+                                                }}
+                                                onMouseLeave={e => {
+                                                    e.currentTarget.style.backgroundColor = 'transparent';
+                                                    e.currentTarget.style.color = 'var(--text-muted)';
+                                                }}
+                                            >
+                                                <item.icon style={{ width: '14px', height: '14px', opacity: 0.7 }} />
+                                                {item.label}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

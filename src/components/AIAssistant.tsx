@@ -10,14 +10,18 @@ interface Message {
     timestamp: Date;
 }
 
-export default function AIAssistant() {
+interface AIAssistantProps {
+    isPro?: boolean;
+}
+
+export default function AIAssistant({ isPro = false }: AIAssistantProps) {
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
     const [isTyping, setIsTyping] = useState(false);
     const [messageCount, setMessageCount] = useState(0);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    const MESSAGE_LIMIT = 5;
+    const MESSAGE_LIMIT = isPro ? 100 : 3;
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -29,7 +33,7 @@ export default function AIAssistant() {
         setMessages([
             {
                 id: 1,
-                text: "Halo! Saya AI Vest Assistant. Saya bisa membantu Anda menganalisis saham atau crypto. Ingin tanya apa hari ini?",
+                text: "Halo! Saya AI Vest Assistant. Saya bisa membantu Anda menganalisis pasar atau emiten tertentu hari ini. Ada yang ingin ditanyakan?",
                 sender: 'bot',
                 timestamp: new Date()
             }
@@ -53,7 +57,6 @@ export default function AIAssistant() {
     const handleResetLimit = () => {
         setMessageCount(0);
         localStorage.setItem('ai_message_count', '0');
-        alert("Chat limit has been reset for testing.");
     };
 
     const handleSend = async () => {
@@ -62,7 +65,9 @@ export default function AIAssistant() {
         if (messageCount >= MESSAGE_LIMIT) {
             const limitMsg: Message = {
                 id: Date.now(),
-                text: "🚨 Anda telah mencapai batas chat harian (5 pesan). Upgrade ke PRO untuk akses tak terbatas dan analisis instan!",
+                text: isPro
+                    ? "🚨 Anda telah mencapai batas maksimal 100 pesan Pro untuk sesi ini. Silakan reset limit untuk lanjut."
+                    : "🚨 Batas pesan gratis harian (3 pesan) telah tercapai. Upgrade ke Pro untuk akses hingga 100 pesan!",
                 sender: 'bot',
                 timestamp: new Date()
             };
@@ -117,7 +122,7 @@ export default function AIAssistant() {
             console.error('Chat Error:', error);
             const errorMsg: Message = {
                 id: Date.now() + 1,
-                text: "Maaf, server sedang sibuk. Coba lagi dalam beberapa saat.",
+                text: "Maaf, koneksi ke AI terganggu. Silakan coba lagi.",
                 sender: 'bot',
                 timestamp: new Date()
             };
@@ -132,204 +137,140 @@ export default function AIAssistant() {
     };
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: 'var(--card)', fontFamily: 'Inter, sans-serif', overflow: 'hidden' }}>
-
-            {/* Header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid var(--border)', backgroundColor: 'var(--card)', flexShrink: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            backgroundColor: 'var(--card)',
+            overflow: 'hidden'
+        }}>
+            {/* Chat Header */}
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '16px 20px',
+                borderBottom: '1px solid var(--border)',
+                backgroundColor: 'rgba(var(--card-rgb), 0.5)',
+                flexShrink: 0
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        backgroundColor: isPro ? '#f59e0b' : 'var(--accent)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: isPro ? '0 0 10px rgba(245, 158, 11, 0.3)' : 'none'
+                    }}>
                         <Bot style={{ width: '18px', height: '18px', color: 'white' }} />
                     </div>
                     <div>
-                        <div style={{ fontWeight: 700, fontSize: '13px', color: 'var(--foreground)' }}>AI Vest Assistant</div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '2px' }}>
-                            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'var(--success)', display: 'inline-block' }}></span>
-                            <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 500 }}>Online</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span style={{ fontSize: '13px', fontWeight: 800 }}>VEST AI ANALYST</span>
+                            {isPro && <span style={{ fontSize: '9px', backgroundColor: '#f59e0b', color: 'white', padding: '1px 4px', borderRadius: '4px', fontWeight: 900 }}>PRO</span>}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'var(--success)' }} />
+                            <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>Online</span>
                         </div>
                     </div>
                 </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <button
-                        onClick={handleClearChat}
-                        style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '6px', borderRadius: '8px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                        onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(var(--border-rgb), 0.2)'}
-                        onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
-                        title="Clear Chat"
-                    >
+                <div style={{ display: 'flex', gap: '4px' }}>
+                    <button onClick={handleClearChat} style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '8px', color: 'var(--text-muted)' }}>
                         <Trash2 style={{ width: '16px', height: '16px' }} />
                     </button>
-                    {messageCount >= MESSAGE_LIMIT && (
-                        <button
-                            style={{
-                                padding: '4px 10px',
-                                backgroundColor: 'rgba(59, 130, 246, 0.15)',
-                                color: 'var(--accent)',
-                                fontSize: '10px',
-                                fontWeight: 700,
-                                borderRadius: '8px',
-                                border: '1px solid rgba(59, 130, 246, 0.3)',
-                                cursor: 'pointer',
-                                animation: 'pulse 2s infinite'
-                            }}
-                        >
-                            UPGRADE PRO
-                        </button>
-                    )}
                 </div>
             </div>
 
-            {/* Messages List */}
-            <div
-                className="custom-scrollbar"
-                style={{
-                    flex: 1,
-                    overflowY: 'auto',
-                    padding: '16px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '16px',
-                    backgroundColor: 'rgba(var(--background-rgb), 0.3)',
-                    minHeight: 0
-                }}
-            >
+            {/* Messages Area */}
+            <div className="custom-scrollbar" style={{
+                flex: 1,
+                overflowY: 'auto',
+                padding: '20px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px',
+                backgroundColor: 'rgba(var(--background-rgb), 0.2)'
+            }}>
                 {messages.map((msg) => (
-                    <div
-                        key={msg.id}
-                        style={{
-                            display: 'flex',
-                            width: '100%',
-                            justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start'
-                        }}
-                    >
-                        <div style={{ maxWidth: '85%', display: 'flex', flexDirection: 'column', alignItems: msg.sender === 'user' ? 'flex-end' : 'flex-start' }}>
-                            <div
-                                style={{
-                                    padding: '10px 14px',
-                                    fontSize: '13px',
-                                    borderRadius: msg.sender === 'user' ? '16px 16px 0 16px' : '16px 16px 16px 0',
-                                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                                    wordWrap: 'break-word',
-                                    whiteSpace: 'pre-wrap',
-                                    backgroundColor: msg.sender === 'user' ? 'var(--accent)' : 'var(--card)',
-                                    color: msg.sender === 'user' ? 'white' : 'var(--foreground)',
-                                    border: msg.sender === 'bot' ? '1px solid rgba(var(--border-rgb), 0.5)' : 'none'
-                                }}
-                            >
-                                {msg.text}
-                            </div>
-                            <span style={{ fontSize: '9px', color: 'var(--text-muted)', marginTop: '4px', padding: '0 4px', opacity: 0.6 }}>
-                                {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </span>
+                    <div key={msg.id} style={{ display: 'flex', width: '100%', justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start' }}>
+                        <div style={{
+                            maxWidth: '85%',
+                            padding: '12px 16px',
+                            fontSize: '13px',
+                            lineHeight: '1.5',
+                            borderRadius: msg.sender === 'user' ? '18px 18px 0 18px' : '18px 18px 18px 0',
+                            backgroundColor: msg.sender === 'user' ? 'var(--accent)' : 'var(--card)',
+                            color: msg.sender === 'user' ? 'white' : 'var(--foreground)',
+                            border: msg.sender === 'bot' ? '1px solid var(--border)' : 'none',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                        }}>
+                            {msg.text}
                         </div>
                     </div>
                 ))}
-
                 {isTyping && (
-                    <div style={{ display: 'flex', justifyContent: 'flex-start', width: '100%', alignItems: 'center', gap: '8px' }}>
-                        <div style={{
-                            backgroundColor: 'var(--card)',
-                            border: '1px solid rgba(var(--border-rgb), 0.5)',
-                            padding: '10px 14px',
-                            borderRadius: '16px 16px 16px 0',
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '5px'
-                        }}>
-                            <span className="animate-bounce" style={{ width: '5px', height: '5px', backgroundColor: 'var(--accent)', borderRadius: '50%', display: 'inline-block', animationDelay: '0ms' }}></span>
-                            <span className="animate-bounce" style={{ width: '5px', height: '5px', backgroundColor: 'var(--accent)', borderRadius: '50%', display: 'inline-block', animationDelay: '150ms' }}></span>
-                            <span className="animate-bounce" style={{ width: '5px', height: '5px', backgroundColor: 'var(--accent)', borderRadius: '50%', display: 'inline-block', animationDelay: '300ms' }}></span>
-                        </div>
-                        <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontStyle: 'italic' }}>AI is analyzing...</span>
+                    <div style={{ display: 'flex', gap: '4px', padding: '8px' }}>
+                        <div className="animate-bounce" style={{ width: '4px', height: '4px', backgroundColor: 'var(--accent)', borderRadius: '50%' }} />
+                        <div className="animate-bounce" style={{ width: '4px', height: '4px', backgroundColor: 'var(--accent)', borderRadius: '50%', animationDelay: '0.2s' }} />
+                        <div className="animate-bounce" style={{ width: '4px', height: '4px', backgroundColor: 'var(--accent)', borderRadius: '50%', animationDelay: '0.4s' }} />
                     </div>
                 )}
                 <div ref={messagesEndRef} />
             </div>
 
             {/* Input Area */}
-            <div style={{ padding: '12px 16px', backgroundColor: 'var(--card)', borderTop: '1px solid var(--border)', flexShrink: 0 }}>
-                <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    backgroundColor: 'var(--background)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '999px',
-                    padding: '8px 8px 8px 16px',
-                    opacity: messageCount >= MESSAGE_LIMIT ? 0.5 : 1,
-                    pointerEvents: messageCount >= MESSAGE_LIMIT ? 'none' : 'auto',
-                    transition: 'border-color 0.2s'
-                }}>
+            <div style={{ padding: '20px', borderTop: '1px solid var(--border)', flexShrink: 0 }}>
+                <div style={{ display: 'flex', gap: '8px' }}>
                     <input
                         type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyPress={handleKeyPress}
-                        placeholder={messageCount >= MESSAGE_LIMIT ? "Limit reached..." : "Tanya tentang saham..."}
+                        placeholder="Tanya peluang pasar..."
                         disabled={messageCount >= MESSAGE_LIMIT}
                         style={{
                             flex: 1,
-                            background: 'transparent',
+                            height: '42px',
+                            borderRadius: '21px',
+                            border: '1px solid var(--border)',
+                            backgroundColor: 'var(--background)',
+                            padding: '0 20px',
                             fontSize: '13px',
-                            color: 'var(--foreground)',
                             outline: 'none',
-                            border: 'none',
-                            minWidth: 0
+                            transition: 'border-color 0.2s'
                         }}
                     />
                     <button
                         onClick={handleSend}
-                        disabled={!input.trim() || messageCount >= MESSAGE_LIMIT}
+                        disabled={!input.trim()}
                         style={{
-                            padding: '7px',
+                            width: '42px',
+                            height: '42px',
                             borderRadius: '50%',
                             border: 'none',
-                            cursor: input.trim() && messageCount < MESSAGE_LIMIT ? 'pointer' : 'not-allowed',
-                            backgroundColor: input.trim() && messageCount < MESSAGE_LIMIT ? 'var(--accent)' : 'rgba(139, 148, 158, 0.15)',
-                            color: input.trim() && messageCount < MESSAGE_LIMIT ? 'white' : 'var(--text-muted)',
+                            backgroundColor: 'var(--accent)',
+                            color: 'white',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            transition: 'all 0.2s',
-                            flexShrink: 0
+                            cursor: 'pointer',
+                            flexShrink: 0, // Prevent squashing
+                            boxShadow: '0 4px 12px rgba(var(--accent-rgb), 0.3)'
                         }}
                     >
-                        <Send style={{ width: '15px', height: '15px' }} />
+                        <Send style={{ width: '18px', height: '18px' }} />
                     </button>
                 </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginTop: '8px' }}>
-                    {messageCount < MESSAGE_LIMIT ? (
-                        <p style={{ fontSize: '9px', color: 'var(--text-muted)', opacity: 0.6 }}>
-                            Sisa pesan gratis hari ini:{' '}
-                            <span style={{ fontWeight: 700, color: 'var(--accent)' }}>{MESSAGE_LIMIT - messageCount}</span>
-                        </p>
-                    ) : (
-                        <p style={{ fontSize: '9px', color: 'var(--accent)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                            Limit reached. Upgrade to PRO
-                        </p>
-                    )}
-
-                    <button
-                        onClick={handleResetLimit}
-                        style={{
-                            fontSize: '9px',
-                            color: 'var(--text-muted)',
-                            background: 'transparent',
-                            border: 'none',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px',
-                            padding: '2px 6px',
-                            borderRadius: '4px'
-                        }}
-                        onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(var(--border-rgb), 0.1)'}
-                        onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
-                    >
-                        <RefreshCcw style={{ width: '10px', height: '10px' }} />
-                        Reset for Test
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px', padding: '0 8px' }}>
+                    <span style={{ fontSize: '10px', color: messageCount >= MESSAGE_LIMIT ? 'var(--danger)' : 'var(--text-muted)', fontWeight: 600 }}>
+                        {isPro ? 'PRO QUOTA:' : 'FREE QUOTA:'} {messageCount}/{MESSAGE_LIMIT} pesan
+                    </span>
+                    <button onClick={handleResetLimit} style={{ background: 'transparent', border: 'none', color: 'var(--accent)', fontSize: '10px', fontWeight: 600, opacity: 0.5, cursor: 'pointer' }}>
+                        RESET LIMIT
                     </button>
                 </div>
             </div>
